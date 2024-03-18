@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
+import java.awt.Rectangle;
 import main.GamePanel;
 import main.KeyHandler;
 
@@ -18,6 +19,7 @@ public class Player extends Entity
     
     public final int screenX;
     public final int screenY;
+    int hasKey = 0;
     
     public Player(GamePanel gp, KeyHandler keyH)
     {
@@ -27,6 +29,14 @@ public class Player extends Entity
     	screenX = gp.screenWidth/2 - (gp.tileSize/2);
     	screenY = gp.screenHeight/2 - (gp.tileSize/2); 
     	
+		solidArea = new Rectangle(); //Adjust based on character model
+		solidArea.x = 8;
+		solidArea.y = 16;
+		solidAreaDefaultX = solidArea.x;
+		solidAreaDefaultY = solidArea.y;
+		solidArea.width = 32;
+		solidArea.height = 32;
+
     	setDefaultValues();
     	getPlayerImage();
     }
@@ -57,27 +67,59 @@ public class Player extends Entity
     {
     	if(keyH.upPressed == true || keyH.downPressed == true || keyH.leftPressed == true || keyH.rightPressed == true)
       {
+		//CHECK AND SET DIRECTION
     	 if(keyH.upPressed == true)
          {
     		 direction = "up";
-             worldY -= speed; //moves up, (0,0) is the top left corner btw
+            
              
          }
          else if(keyH.downPressed == true)
          {
         	 direction = "down";
-             worldY += speed;
+             
          }
          else if(keyH.leftPressed == true)
          {
         	 direction = "left";
-             worldX -= speed;
+             
          }
          else if(keyH.rightPressed == true)
          {
         	 direction = "right";
-             worldX += speed;
+            
          }
+		 // CHECK TILE COLLISION
+		 collisionOn = false;
+		 gp.cChecker.checkTile(this);
+		 
+		 //CHECK OBJECT COLLISION
+		 int objIndex = gp.cChecker.checkObject(this,true);
+		 pickUpObject(objIndex);
+		 
+		 
+		 
+		 // IF COLLISION IS FALSE,PLAYER CAN MOVE
+		 if(collisionOn == false)
+		 {
+			switch(direction)
+			{
+				case "up":
+				worldY -= speed;
+					break;
+				case "down":
+				worldY += speed;
+					break;
+				case "left":
+				worldX -= speed;
+					break;
+				case "right":
+				worldX += speed;
+					break;
+			}
+		 }
+
+
     	 spriteCounter++;
     	 if(spriteCounter > 12)
     	 {
@@ -93,6 +135,36 @@ public class Player extends Entity
     	 }
       }
     }
+    
+    
+    public void pickUpObject(int i)
+    {
+    	if(i != 999) //999 means no object is touched
+    	{
+    		String objectName = gp.obj[i].name;
+    		
+    		switch(objectName)
+    		{
+    		case "Key":
+    			hasKey++;
+    			gp.obj[i] = null;
+    			System.out.print("Key:" + hasKey);
+    			break;
+    		case "Door":
+    			if(hasKey > 0)
+    			{
+    				gp.obj[i] = null;
+    				hasKey--;
+    				
+    			}
+    			System.out.print("Key:" + hasKey);
+    			break;
+    		}
+    	}
+    }
+    
+    
+    
     public void draw(Graphics2D g2)
     {
     	BufferedImage image = null;

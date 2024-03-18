@@ -1,5 +1,6 @@
 package main;
 
+
  
 import javax.swing.JFrame;
 
@@ -22,6 +23,7 @@ public class Main {
         window.setLocationRelativeTo(null);
         window.setVisible(true);
         
+        gamePanel.setupGame();
         gamePanel.startGameThread(); //start of timer
         
     }
