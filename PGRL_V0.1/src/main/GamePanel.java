@@ -5,11 +5,13 @@ import javax.swing.JPanel;
 
 import entity.Player;
 import tile.TileManager;
+import object.SuperObject;
 
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
 
 public class GamePanel extends JPanel implements Runnable
 {
@@ -38,7 +40,10 @@ public class GamePanel extends JPanel implements Runnable
     TileManager tileM = new TileManager(this);
     KeyHandler keyH = new KeyHandler(); // handles input
     Thread gameThread;
-   public Player player = new Player(this,keyH);
+    public CollisionChecker cChecker = new CollisionChecker(this);
+    public AssetSetter aSetter = new AssetSetter(this);
+    public Player player = new Player(this,keyH);
+    public SuperObject obj[] = new SuperObject[10]; // the amount of objects allowed on a screen
     
     
     
@@ -50,6 +55,10 @@ public class GamePanel extends JPanel implements Runnable
         this.setFocusable(true);// this allows the Panel to receive input
     }
     
+    public void setupGame()
+    {
+    	aSetter.setObject();
+    }
     
     public void startGameThread()
     {
@@ -94,10 +103,21 @@ public class GamePanel extends JPanel implements Runnable
         super.paintComponent(g);
         
         Graphics2D g2 = (Graphics2D)g;
-        
+        // TILE
         tileM.draw(g2); // first layer makes it in the background. The reverse hides the player
         
+        //OBJECT
+        for(int i = 0; i < obj.length; i++)
+        {
+        	if(obj[i] != null)
+        	{
+        		obj[i].draw(g2,this);
+        	}
+        }
+        
+        //PLAYER
         player.draw(g2);
+        
         
         g2.dispose(); // Releases the graphics memory
     }
